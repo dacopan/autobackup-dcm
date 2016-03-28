@@ -16,7 +16,9 @@
       "local_backup_dir": "../backup_test_files/jom_backups/",
       "prefix": "jom",
       "remote_backup_dir": "/backups/jom_backups/",
-      "app_name": "jom"
+      "app_name": "jom",
+      "google_credentials_name": "jom_google_credentials.json",
+      "google_authorized": false
     },
     "rotate": {
       "dry_run": true,

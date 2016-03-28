@@ -62,6 +62,16 @@ def rotate_backups(app):
         rotate_type='local'
     ).rotate_backups(app['cfg']['local_backup_dir'])
 
+    RotateBackupsCM(
+        rotation_scheme=app['rotate']['remote'],
+        include_list=app['rotate']['include_list'],
+        exclude_list=app['rotate']['exclude_list'],
+        dry_run=app['rotate']['dry_run'],
+        io_scheduling_class=app['rotate']['ionice'],
+        rotate_type='remote',
+        gdrivecm=GDriveCM(app)
+    ).rotate_backups(app['cfg']['remote_backup_dir'])
+
     print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
 
 

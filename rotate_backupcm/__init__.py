@@ -23,8 +23,8 @@ import re
 # External dependencies.
 from dateutil.relativedelta import relativedelta
 from executor import execute
-from humanfriendly import format_path, parse_path, Timer
-from humanfriendly.text import concatenate, split
+from humanfriendly import format_path, Timer
+from humanfriendly.text import concatenate
 from natsort import natsort
 
 # Semi-standard module versioning.
@@ -90,7 +90,7 @@ class RotateBackupsCM(object):
     """Python API for the ``rotate-backups`` program."""
 
     def __init__(self, rotation_scheme, include_list=None, exclude_list=None,
-                 dry_run=False, io_scheduling_class=None, rotate_type='local'):
+                 dry_run=False, io_scheduling_class=None, rotate_type='local', gdrivecm=None):
         """
         Construct a :class:`RotateBackups` object.
         :param rotation_scheme: A dictionary with one or more of the keys 'hourly',
@@ -128,6 +128,8 @@ class RotateBackupsCM(object):
         self.dry_run = dry_run
         self.io_scheduling_class = io_scheduling_class
         self.rotate_type = rotate_type
+        if rotate_type == 'remote':
+            self.gdrivecm = gdrivecm
 
     def rotate_backups(self, directory):
         """
@@ -150,7 +152,7 @@ class RotateBackupsCM(object):
         # Collect the backups in the given directory. if rotate type is on local or on google drive
         sorted_backups = self.collect_backups(directory, self.rotate_type)
         if not sorted_backups:
-            logger.info("No backups found in %s.", format_path(directory))
+            logger.info("No backups found in %s.", self.custom_format_path(directory))
             return
         most_recent_backup = sorted_backups[-1]
         # Group the backups by the rotation frequencies.
@@ -164,11 +166,11 @@ class RotateBackupsCM(object):
             if backup in backups_to_preserve:
                 matching_periods = backups_to_preserve[backup]
                 logger.info("Preserving %s (matches %s retention %s) ..",
-                            format_path(backup.pathname),
+                            self.custom_format_path(backup.pathname),
                             concatenate(map(repr, matching_periods)),
                             "period" if len(matching_periods) == 1 else "periods")
             else:
-                logger.info("Deleting %s %s ..", backup.type, format_path(backup.pathname))
+                logger.info("Deleting %s %s ..", backup.type, self.custom_format_path(backup.pathname))
                 if not self.dry_run:
                     if self.rotate_type == 'local':  # if rotate type is on local or on google drive
                         command = ['rm', '-Rf', backup.pathname]
@@ -179,7 +181,7 @@ class RotateBackupsCM(object):
                         command = ['ionice', '--class', self.io_scheduling_class] + command
                     timer = Timer()
                     execute(*command, logger=logger)
-                    logger.debug("Deleted %s in %s.", format_path(backup.pathname), timer)
+                    logger.debug("Deleted %s in %s.", self.custom_format_path(backup.pathname), timer)
         if len(backups_to_preserve) == len(sorted_backups):
             logger.info("Nothing to do! (all backups preserved)")
 
@@ -192,10 +194,11 @@ class RotateBackupsCM(object):
                   backups are sorted by their date).
         """
         backups = []
-        directory = os.path.abspath(directory)
-        logger.info("Scanning local directory for backups: %s", format_path(directory))
+        # directory = os.path.abspath(directory)
+        directory = os.path.abspath(directory) if not rotate_type == 'remote' else directory
+        logger.info("Scanning %s directory for backups: %s", rotate_type, self.custom_format_path(directory))
         # get files from local if rotate_type is local else get files from GoogleDrive
-        files = os.listdir(directory) if not rotate_type == 'remote' else os.listdir(directory)
+        files = os.listdir(directory) if not rotate_type == 'remote' else self.gdrivecm.get_files(directory)
 
         for entry in natsort(files):
             # Check for a time stamp in the directory entry's name.
@@ -208,13 +211,13 @@ class RotateBackupsCM(object):
                     logger.debug("Excluded %r (it didn't match the include list).", entry)
                 else:
                     backups.append(Backup(
-                        pathname=os.path.join(directory, entry),
+                        pathname=os.path.join(directory, entry) if not rotate_type == 'remote' else entry,
                         datetime=datetime.datetime(*(int(group, 10) for group in match.groups('0'))),
                     ))
             else:
                 logger.debug("Failed to match time stamp in filename: %s", entry)
         if backups:
-            logger.info("Found %i timestamped backups in %s.", len(backups), format_path(directory))
+            logger.info("Found %i timestamped backups in %s.", len(backups), self.custom_format_path(directory))
         return sorted(backups)
 
     def group_backups(self, backups):
@@ -296,6 +299,9 @@ class RotateBackupsCM(object):
                 for backup in period:
                     backups_to_preserve[backup].append(frequency)
         return backups_to_preserve
+
+    def custom_format_path(self, directory):
+        return format_path(directory) if not self.rotate_type == 'remote' else directory
 
 
 @functools.total_ordering

@@ -14,23 +14,54 @@ import time
 import datetime
 import json
 import logging
+import sys
 
 # External dependencies.
+
+# Modules included in our package.
+from rotate_backupcm import coerce_retention_period, RotateBackupsCM
 
 # Semi-standard module versioning.
 __version__ = '1.0'
 
 # Initialize a logger for this module.
-logger = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
-config_file = '../config/mysql_config.json'
+CONFIG_FILE = '../config/mysql_config.json'
 
 
 def read_config():
-    global config_file
-    with open(config_file, 'r') as f:
+    global CONFIG_FILE
+    with open(CONFIG_FILE, 'r') as f:
         cfg = json.load(f)
         return cfg
+
+
+def save_last_backup_datetime(app, cfg):
+    print("starting save_last_backup_datetime to '{}'".format(app['cfg']['app_name']))
+
+    filestamp = time.strftime('%Y-%m-%d_%H-%M')
+    global CONFIG_FILE
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(cfg, f, indent=2, sort_keys=False)
+
+    print("finish save_last_backup_datetime to '{}': {}".format(app['cfg']['app_name'], filestamp))
+
+
+def rotate_backups(app):
+    print("starting rotate_backups to '{}'".format(app['cfg']['app_name']))
+
+    RotateBackupsCM(
+        rotation_scheme=app['rotate']['local'],
+        include_list=app['rotate']['include_list'],
+        exclude_list=app['rotate']['exclude_list'],
+        dry_run=app['rotate']['dry_run'],
+        io_scheduling_class=app['rotate']['ionice'],
+        rotate_type='local'
+    ).rotate_backups(app['cfg']['local_backup_dir'])
+
+    print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
 
 
 def do_backup():
@@ -79,7 +110,7 @@ def do_backup():
         if rotate:
             rotate_backups(app)  # now rotate backups after backup created and uploaded
             #  if all are correctly now update config file to save the last backup created
-            save_last_backup_datetime(app, cfg)
+            # save_last_backup_datetime(app, cfg)
 
         else:
             print("all backups to '{}' up to date".format(app['cfg']['app_name']))
@@ -93,7 +124,7 @@ def backup_daily(app):
     print("starting backup_daily to '{}'".format(app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}_{}_{}.{}'.format(app['cfg']['prefix'], filestamp, 'daily', 'gz')
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'daily', 'gz')
     """
     os.makedirs(os.path.dirname(backup_file), exist_ok=True)
     f = open(backup_file, 'w')
@@ -107,7 +138,10 @@ def backup_monthly(app):
     print("starting backup_monthly to '{}'".format(app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}_{}_{}.{}'.format(app['cfg']['prefix'], filestamp, 'monthly', 'gz')
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'monthly',
+                                         'gz')
+
+    create_full_backup(backup_file)
 
     print("finish backup_monthly to '{}': {}".format(app['cfg']['app_name'], backup_file))
 
@@ -116,7 +150,10 @@ def backup_weekly(app):
     print("starting backup_weekly to '{}'".format(app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}_{}_{}.{}'.format(app['cfg']['prefix'], filestamp, 'weekly', 'gz')
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'weekly',
+                                         'gz')
+
+    create_full_backup(backup_file)
 
     print("finish backup_weekly to '{}': {}".format(app['cfg']['app_name'], backup_file))
 
@@ -125,27 +162,21 @@ def backup_yearly(app):
     print("starting backup_yearly to '{}'".format(app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}_{}_{}.{}'.format(app['cfg']['prefix'], filestamp, 'yearly', 'gz')
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'yearly',
+                                         'gz')
+
+    create_full_backup(backup_file)
 
     print("finish backup_yearly to '{}': {}".format(app['cfg']['app_name'], backup_file))
 
 
-def rotate_backups(app):
-    print("starting rotate_backups to '{}'".format(app['cfg']['app_name']))
-
-    print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
-
-
-def save_last_backup_datetime(app, cfg):
-    print("starting save_last_backup_datetime to '{}'".format(app['cfg']['app_name']))
-
-    filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    global config_file
-    with open(config_file, 'w') as f:
-        json.dump(cfg, f, indent=2, sort_keys=False)
-
-    print("finish save_last_backup_datetime to '{}': {}".format(app['cfg']['app_name'], filestamp))
-
+def create_full_backup(backup_file):
+    log.info('backupfile: %s', backup_file)
+    """os.makedirs(os.path.dirname(backup_file), exist_ok=True)
+    f = open(backup_file, 'w')
+    f.write(backup_file)
+    f.close()
+    """
 
 if __name__ == "__main__":
     do_backup()

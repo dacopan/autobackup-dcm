@@ -1,36 +1,40 @@
 [
   {
+    "custom": {
+      "db_user": "jom",
+      "db_host": "localhost",
+      "db_password": "jom",
+      "db_name": "jom"
+    },
+    "bk": {
+      "last_day": 28,
+      "last_month": 3,
+      "last_week": 13,
+      "last_year": 0
+    },
     "cfg": {
-      "app_name": "jom",
-      "prefix": "jom",
       "local_backup_dir": "../backup_test_files/jom_backups/",
-      "remote_backup_dir": "/backups/jom_backups/"
+      "prefix": "jom",
+      "remote_backup_dir": "/backups/jom_backups/",
+      "app_name": "jom"
     },
     "rotate": {
+      "dry_run": true,
+      "include_list": [],
+      "ionice": "idle",
+      "exclude_list": [],
       "local": {
         "daily": 7,
-        "monthly": 12,
         "weekly": 4,
-        "yearly": 3
+        "monthly": 12,
+        "yearly": 2
       },
       "remote": {
         "daily": 7,
-        "monthly": 12,
         "weekly": 4,
+        "monthly": 12,
         "yearly": 3
       }
-    },
-    "bk": {
-      "last_day": 27,
-      "last_month": 3,
-      "last_week": 12,
-      "last_year": 0
-    },
-    "custom": {
-      "db_host": "localhost",
-      "db_name": "jom",
-      "db_password": "jom",
-      "db_user": "jom"
     }
   }
 ]

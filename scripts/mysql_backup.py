@@ -67,6 +67,8 @@ def rotate_backups(app):
 def upload_backup(backup_file):
     log.info("uploading %s", backup_file)
 
+    log.info("uploaded %s", backup_file)
+
 
 def do_backup():
     print('starting all backups')
@@ -83,7 +85,7 @@ def do_backup():
         rotate = False
         # now determine type of backup and run it
         if current_year > app['bk']['last_year']:
-            backup_yearly(app)  # now create backup to current app
+            create_full_backup(app, 'yearly')  # now create backup to current app
             # if yearly full backup was created so not need create full backup of this month and week and daily
             app['bk']['last_year'] = current_year
             app['bk']['last_month'] = current_month
@@ -92,7 +94,7 @@ def do_backup():
             rotate = True
 
         elif current_month > app['bk']['last_month']:
-            backup_monthly(app)  # now create backup to current app
+            create_full_backup(app, 'monthly')  # now create backup to current app
             # if monthly full backup was created so not need create full backup of this week and daily
             app['bk']['last_month'] = current_month
             app['bk']['last_week'] = current_week
@@ -100,14 +102,14 @@ def do_backup():
             rotate = True
 
         elif current_week > app['bk']['last_week']:
-            backup_weekly(app)  # now create backup to current app
+            create_full_backup(app, 'weekly')  # now create backup to current app
             # if weekly full backup was created so not need create daily backup of this day
             app['bk']['last_week'] = current_week
             app['bk']['last_day'] = current_day
             rotate = True
 
         elif current_day > app['bk']['last_day']:
-            backup_daily(app)  # now create backup to current app
+            create_incremental_backup(app, 'daily')  # now create backup to current app
             app['bk']['last_day'] = current_day
             rotate = True
 
@@ -124,61 +126,41 @@ def do_backup():
     print('end all backups')
 
 
-def backup_daily(app):
-    print("starting backup_daily to '{}'".format(app['cfg']['app_name']))
-
-    create_incremental_backup(app, 'daily')
-
-    print("finish backup_daily to '{}'".format(app['cfg']['app_name']))
-
-
-def backup_monthly(app):
-    print("starting backup_monthly to '{}'".format(app['cfg']['app_name']))
-
-    create_full_backup(app, 'monthly')
-
-    print("finish backup_monthly to '{}'".format(app['cfg']['app_name']))
-
-
-def backup_weekly(app):
-    print("starting backup_weekly to '{}'".format(app['cfg']['app_name']))
-
-    create_full_backup(app, 'weekly')
-
-    print("finish backup_weekly to '{}': {}".format(app['cfg']['app_name']))
-
-
-def backup_yearly(app):
-    print("starting backup_yearly to '{}'".format(app['cfg']['app_name']))
-
-    create_full_backup(app, 'yearly')
-
-    print("finish backup_yearly to '{}': {}".format(app['cfg']['app_name']))
-
-
 def create_full_backup(app, backup_type):
+    print("starting full backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
+
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
     backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
                                          'gz')
 
+    # here create backup
     """os.makedirs(os.path.dirname(backup_file), exist_ok=True)
-    f = open(backup_file, 'w')
-    f.write(backup_file)
-    f.close()
-    """
+        f = open(backup_file, 'w')
+        f.write(backup_file)
+        f.close()
+        """
+
+    print("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
+
     upload_backup(backup_file)
 
 
 def create_incremental_backup(app, backup_type):
+    print("starting incremental backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
+
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
     backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
                                          'gz')
 
+    # here create backup
     """os.makedirs(os.path.dirname(backup_file), exist_ok=True)
-    f = open(backup_file, 'w')
-    f.write(backup_file)
-    f.close()
-    """
+        f = open(backup_file, 'w')
+        f.write(backup_file)
+        f.close()
+        """
+
+    print("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
+
     upload_backup(backup_file)
 
 

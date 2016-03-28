@@ -64,6 +64,10 @@ def rotate_backups(app):
     print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
 
 
+def upload_backup(backup_file):
+    log.info("uploading %s", backup_file)
+
+
 def do_backup():
     print('starting all backups')
     cfg = read_config()
@@ -123,60 +127,60 @@ def do_backup():
 def backup_daily(app):
     print("starting backup_daily to '{}'".format(app['cfg']['app_name']))
 
-    filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'daily', 'gz')
-    """
-    os.makedirs(os.path.dirname(backup_file), exist_ok=True)
-    f = open(backup_file, 'w')
-    f.write(backup_file)
-    f.close()
-    # """
-    print("finish backup_daily to '{}': {}".format(app['cfg']['app_name'], backup_file))
+    create_incremental_backup(app, 'daily')
+
+    print("finish backup_daily to '{}'".format(app['cfg']['app_name']))
 
 
 def backup_monthly(app):
     print("starting backup_monthly to '{}'".format(app['cfg']['app_name']))
 
-    filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'monthly',
-                                         'gz')
+    create_full_backup(app, 'monthly')
 
-    create_full_backup(backup_file)
-
-    print("finish backup_monthly to '{}': {}".format(app['cfg']['app_name'], backup_file))
+    print("finish backup_monthly to '{}'".format(app['cfg']['app_name']))
 
 
 def backup_weekly(app):
     print("starting backup_weekly to '{}'".format(app['cfg']['app_name']))
 
-    filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'weekly',
-                                         'gz')
+    create_full_backup(app, 'weekly')
 
-    create_full_backup(backup_file)
-
-    print("finish backup_weekly to '{}': {}".format(app['cfg']['app_name'], backup_file))
+    print("finish backup_weekly to '{}': {}".format(app['cfg']['app_name']))
 
 
 def backup_yearly(app):
     print("starting backup_yearly to '{}'".format(app['cfg']['app_name']))
 
+    create_full_backup(app, 'yearly')
+
+    print("finish backup_yearly to '{}': {}".format(app['cfg']['app_name']))
+
+
+def create_full_backup(app, backup_type):
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, 'yearly',
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
                                          'gz')
 
-    create_full_backup(backup_file)
-
-    print("finish backup_yearly to '{}': {}".format(app['cfg']['app_name'], backup_file))
-
-
-def create_full_backup(backup_file):
-    log.info('backupfile: %s', backup_file)
     """os.makedirs(os.path.dirname(backup_file), exist_ok=True)
     f = open(backup_file, 'w')
     f.write(backup_file)
     f.close()
     """
+    upload_backup(backup_file)
+
+
+def create_incremental_backup(app, backup_type):
+    filestamp = time.strftime('%Y-%m-%d_%H-%M')
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
+                                         'gz')
+
+    """os.makedirs(os.path.dirname(backup_file), exist_ok=True)
+    f = open(backup_file, 'w')
+    f.write(backup_file)
+    f.close()
+    """
+    upload_backup(backup_file)
+
 
 if __name__ == "__main__":
     do_backup()

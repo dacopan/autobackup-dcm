@@ -68,9 +68,9 @@ def rotate_backups(app):
 def upload_backup(app, backup_file):
     log.info("uploading %s", backup_file)
     try:
-        GDriveCM(app).testx()
-
+        GDriveCM(app).upload_file(backup_file)
         log.info("uploaded %s", backup_file)
+
     except:
         log.error("error uploading %s", backup_file)
 
@@ -134,7 +134,8 @@ def do_backup():
 def create_full_backup(app, backup_type):
     print("starting full backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
-    filestamp = time.strftime('%Y-%m-%d_%H-%M')
+    # filestamp = time.strftime('%Y-%m-%d_%H-%M')
+    filestamp = '2016-03-28_09-17'
     backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
                                          'gz')
 

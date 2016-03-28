@@ -20,6 +20,7 @@ import sys
 
 # Modules included in our package.
 from rotate_backupcm import coerce_retention_period, RotateBackupsCM
+from upload_backupcm import GDriveCM
 
 # Semi-standard module versioning.
 __version__ = '1.0'
@@ -64,10 +65,14 @@ def rotate_backups(app):
     print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
 
 
-def upload_backup(backup_file):
+def upload_backup(app, backup_file):
     log.info("uploading %s", backup_file)
+    try:
+        GDriveCM(app).testx()
 
-    log.info("uploaded %s", backup_file)
+        log.info("uploaded %s", backup_file)
+    except:
+        log.error("error uploading %s", backup_file)
 
 
 def do_backup():
@@ -134,15 +139,15 @@ def create_full_backup(app, backup_type):
                                          'gz')
 
     # here create backup
-    """os.makedirs(os.path.dirname(backup_file), exist_ok=True)
-        f = open(backup_file, 'w')
-        f.write(backup_file)
-        f.close()
-        """
+    """
+    os.makedirs(os.path.dirname(backup_file), exist_ok=True)
+    f = open(backup_file, 'w')
+    f.write(backup_file)
+    f.close()
+    # """
 
     print("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
-
-    upload_backup(backup_file)
+    upload_backup(app, backup_file)
 
 
 def create_incremental_backup(app, backup_type):
@@ -161,7 +166,7 @@ def create_incremental_backup(app, backup_type):
 
     print("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
 
-    upload_backup(backup_file)
+    upload_backup(app, backup_file)
 
 
 if __name__ == "__main__":

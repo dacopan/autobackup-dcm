@@ -172,15 +172,15 @@ class RotateBackupsCM(object):
             else:
                 logger.info("Deleting %s %s ..", backup.type, self.custom_format_path(backup.pathname))
                 if not self.dry_run:
+                    timer = Timer()
                     if self.rotate_type == 'local':  # if rotate type is on local or on google drive
                         command = ['rm', '-Rf', backup.pathname]
-                    else:
-                        command = ['rm', '-Rf', backup.pathname]
+                        if self.io_scheduling_class:
+                            command = ['ionice', '--class', self.io_scheduling_class] + command
 
-                    if self.io_scheduling_class:
-                        command = ['ionice', '--class', self.io_scheduling_class] + command
-                    timer = Timer()
-                    execute(*command, logger=logger)
+                        execute(*command, logger=logger)
+                    else:
+                        self.gdrivecm.delete_file(backup.pathname.split('_')[0])
                     logger.debug("Deleted %s in %s.", self.custom_format_path(backup.pathname), timer)
         if len(backups_to_preserve) == len(sorted_backups):
             logger.info("Nothing to do! (all backups preserved)")

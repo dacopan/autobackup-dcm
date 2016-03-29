@@ -185,21 +185,16 @@ class GDriveCM(object):
 
         return backupfiles
 
+    def delete_file(self, file_id):
+        try:
+            service = self.get_service()
+            response = service.files().delete(fileId=file_id).execute()
+            if response:
+                return False
+            else:
+                return True
 
-def main():
-    GDriveCM(
-        {
-            "cfg": {
-                "local_backup_dir": "../backup_test_files/jom_backups/",
-                "prefix": "jom",
-                "remote_backup_dir": "/backups/jom_backups/",
-                "app_name": "jom",
-                "google_credentials_name": "jom_google_credentials.json",
-                "google_authorized": False
-            }
-        }
-    ).testx()
-
-
-if __name__ == '__main__':
-    main()
+        except:
+            e = sys.exc_info()[0]
+            log.error('An error occurred: %s', e)
+            return False

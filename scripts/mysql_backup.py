@@ -19,7 +19,7 @@ import sys
 # External dependencies.
 
 # Modules included in our package.
-from rotate_backupcm import coerce_retention_period, RotateBackupsCM
+from rotate_backupcm import RotateBackupsCM
 from upload_backupcm import GDriveCM
 
 # Semi-standard module versioning.
@@ -51,7 +51,7 @@ def save_last_backup_datetime(app, cfg):
 
 
 def rotate_backups(app):
-    print("starting rotate_backups to '{}'".format(app['cfg']['app_name']))
+    log.info("starting rotate_backups to '{}'".format(app['cfg']['app_name']))
 
     RotateBackupsCM(
         rotation_scheme=app['rotate']['local'],
@@ -66,7 +66,8 @@ def rotate_backups(app):
         rotation_scheme=app['rotate']['remote'],
         include_list=app['rotate']['include_list'],
         exclude_list=app['rotate']['exclude_list'],
-        dry_run=app['rotate']['dry_run'],
+        # dry_run=app['rotate']['dry_run'],
+        dry_run=False,
         io_scheduling_class=app['rotate']['ionice'],
         rotate_type='remote',
         gdrivecm=GDriveCM(app)
@@ -76,7 +77,7 @@ def rotate_backups(app):
 
 
 def upload_backup(app, backup_file):
-    log.info("uploading %s", backup_file)
+    log.debug("uploading %s", backup_file)
     try:
         GDriveCM(app).upload_file(backup_file)
         log.info("uploaded %s", backup_file)

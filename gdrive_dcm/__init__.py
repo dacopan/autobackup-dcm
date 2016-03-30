@@ -177,25 +177,32 @@ class GDriveCM(object):
         :returns: list of files in this folder
 
         """
-        service = self.get_service()
-        page_token = None
-        backupfiles = []
-        while True:
-            response = service.files().list(
-                q="'{}' in parents and trashed = false".format(folder_id),
-                spaces='drive',
-                fields='nextPageToken, files(id, name)',
-                pageToken=page_token).execute()
-            files = response.get('files', [])
-            for file in files:
-                # Process change
-                backupfiles.append('{}_{}'.format(file.get('id'), file.get('name')))
 
-            page_token = response.get('nextPageToken', None)
-            if page_token is None:
-                break
+        try:
+            service = self.get_service()
+            page_token = None
+            backupfiles = []
+            while True:
+                response = service.files().list(
+                    q="'{}' in parents and trashed = false".format(folder_id),
+                    spaces='drive',
+                    fields='nextPageToken, files(id, name)',
+                    pageToken=page_token).execute()
+                files = response.get('files', [])
+                for file in files:
+                    # Process change
+                    backupfiles.append('{}_{}'.format(file.get('id'), file.get('name')))
 
-        return backupfiles
+                page_token = response.get('nextPageToken', None)
+                if page_token is None:
+                    break
+
+            return backupfiles
+
+        except:
+            e = sys.exc_info()[0]
+            log.error('An error occurred: %s', e)
+            return []
 
     def delete_file(self, file_id):
         """Delete file with file_id from Google drive

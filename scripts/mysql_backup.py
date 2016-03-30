@@ -19,8 +19,8 @@ import sys
 # External dependencies.
 
 # Modules included in our package.
-from rotate_backupcm import RotateBackupsCM
-from upload_backupcm import GDriveCM
+from rotate_dcm import RotateBackupsCM
+from gdrive_dcm import GDriveCM
 
 # Semi-standard module versioning.
 __version__ = '1.0'

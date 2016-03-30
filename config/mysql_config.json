@@ -14,8 +14,7 @@
     },
     "cfg": {
       "local_backup_dir": "../backup_test_files/jom_backups/",
-      "prefix": "jom",
-      "remote_backup_dir": "/backups/jom_backups/",
+      "remote_backup_dir": "0B32vVHku7fXqNUpLLXF3YzJVZTg",
       "app_name": "jom",
       "google_credentials_name": "jom_google_credentials.json",
       "google_authorized": false

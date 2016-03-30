@@ -14,7 +14,7 @@ import logging
 import sys
 
 # Modules included in our package.
-from upload_backupcm import GDriveCM
+from gdrive_dcm import GDriveCM
 
 # Initialize a logger for this module.
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

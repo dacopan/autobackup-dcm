@@ -41,31 +41,22 @@ APPLICATION_NAME = 'Autobackup DCM'
 class GDriveCM(object):
     """Python API for the ``GDriveCM`` program."""
 
-    def __init__(self, app):
+    def __init__(self, google_credentials_name, google_authorized, remote_folder=None):
         """
         Construct a :class:`RotateBackups` object.
 
-        :param include_list: A list of strings with :mod:`fnmatch` patterns. If a
-                             nonempty include list is specified each backup must
-                             match a pattern in the include list, otherwise it
-                             will be ignored.
-        :param exclude_list: A list of strings with :mod:`fnmatch` patterns. If a
-                             backup matches the exclude list it will be ignored,
-                             *even if it also matched the include list* (it's the
-                             only logical way to combine both lists).
-        :param dry_run: If this is ``True`` then no changes will be made, which
-                        provides a 'preview' of the effect of the rotation scheme
-                        (the default is ``False``). Right now this is only useful
-                        in the command line interface because there's no return
-                        value.
-        :param io_scheduling_class: Use ``ionice`` to set the I/O scheduling class
-                                    (expected to be one of the strings 'idle',
-                                    'best-effort' or 'realtime').
+        :param google_credentials_name: Filename to storage credentials of GDrive API in the
+                                        ~/.credentials folder
+                                        for example "setup-autobackup-dcm.json".
+
+        :param google_authorized: if true when this module is executed if the credentials are not valid or do not exist,
+                                  the script will be paused until the user logged on google.
+
+        :param remote_folder: de folder_id of Google drive
         """
-        self.app = app
-        self.google_credentials_name = app['cfg']['google_credentials_name']
-        self.remote_folder = app['cfg']['remote_backup_dir']
-        self.google_authorized = app['cfg']['google_authorized']
+        self.google_credentials_name = google_credentials_name
+        self.remote_folder = remote_folder
+        self.google_authorized = google_authorized
 
     def get_credentials(self):
         """Gets valid user credentials from storage.
@@ -98,12 +89,22 @@ class GDriveCM(object):
         return credentials
 
     def get_service(self):
+        """Gets service Google Drive.
+
+                Returns:
+                    Service, the current Gdrive service ready to use.
+                """
         credentials = self.get_credentials()
         http = credentials.authorize(httplib2.Http())
         service = discovery.build('drive', 'v3', http=http)
         return service
 
     def get_folders(self, parent_id='root'):
+        """Gets the child folders of  the given folder id
+
+        :param parent_id: the Google drive folder id of the folder where you want to list the children
+        :returns: list of child folders
+        """
         log.info('get_folders Gdrive Api')
 
         service = self.get_service()
@@ -128,6 +129,11 @@ class GDriveCM(object):
         return folders
 
     def upload_file(self, file):
+        """ Upload new backup file to google drive folder id specified in class construct
+
+            :param file: the path to local file to upload
+
+        """
         service = self.get_service()
         filename = os.path.basename(file)
         self.insert_file(service, filename, file)
@@ -165,6 +171,12 @@ class GDriveCM(object):
             log.error('An error occurred: %s', e)
 
     def get_files(self, folder_id):
+        """Get list of all files contained in the folder_id
+
+        :param folder_id: the folder id to list files contained in
+        :returns: list of files in this folder
+
+        """
         service = self.get_service()
         page_token = None
         backupfiles = []
@@ -181,11 +193,16 @@ class GDriveCM(object):
 
             page_token = response.get('nextPageToken', None)
             if page_token is None:
-                break;
+                break
 
         return backupfiles
 
     def delete_file(self, file_id):
+        """Delete file with file_id from Google drive
+
+        :param file_id: the Google drive file id to delete
+        :returns: True if deleted
+        """
         try:
             service = self.get_service()
             response = service.files().delete(fileId=file_id).execute()

@@ -20,21 +20,14 @@ from upload_backupcm import GDriveCM
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
+# file to store credentials in ~/.credentials
+GOOGLE_CRREDENTIALS_NAME = "setup-autobackup-dcm.json"
+
 
 def main():
     print('Google drive folders in root')
-    gdrive = GDriveCM(
-        {
-            "cfg": {
-                "local_backup_dir": None,
-                "prefix": None,
-                "remote_backup_dir": None,
-                "app_name": "setup-autobackup-dcm",
-                "google_credentials_name": "setup-autobackup-dcm.json",
-                "google_authorized": False
-            }
-        }
-    )
+    gdrive = GDriveCM(google_credentials_name=GOOGLE_CRREDENTIALS_NAME,
+                      google_authorized=False)
 
     flag = 1
     folder_id = 'root'

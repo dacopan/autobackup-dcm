@@ -2,7 +2,7 @@
 # autobackup-dcm: Simple python script to autobackup, rotate backup and upload to google drive.
 # this script create one daily incremental backups, and one full backup each week, month and year
 #
-# backups should be created and named as: prefix_DATE_HOUR_BACKTYPE.EXTENSION
+# backups should be created and named as: appname_DATE_HOUR_BACKTYPE.EXTENSION
 #
 # Author: dacopanCM <peter@peterodding.com>
 # Last Change: March 27, 2016
@@ -66,11 +66,12 @@ def rotate_backups(app):
         rotation_scheme=app['rotate']['remote'],
         include_list=app['rotate']['include_list'],
         exclude_list=app['rotate']['exclude_list'],
-        # dry_run=app['rotate']['dry_run'],
-        dry_run=False,
+        dry_run=app['rotate']['dry_run'],
         io_scheduling_class=app['rotate']['ionice'],
         rotate_type='remote',
-        gdrivecm=GDriveCM(app)
+        gdrivecm=GDriveCM(google_credentials_name=app['cfg']['google_credentials_name'],
+                          google_authorized=app['cfg']['google_authorized'],
+                          remote_folder=app['cfg']['remote_backup_dir'])
     ).rotate_backups(app['cfg']['remote_backup_dir'])
 
     print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
@@ -79,7 +80,10 @@ def rotate_backups(app):
 def upload_backup(app, backup_file):
     log.debug("uploading %s", backup_file)
     try:
-        GDriveCM(app).upload_file(backup_file)
+        GDriveCM(google_credentials_name=app['cfg']['google_credentials_name'],
+                 google_authorized=app['cfg']['google_authorized'],
+                 remote_folder=app['cfg']['remote_backup_dir']
+                 ).upload_file(backup_file)
         log.info("uploaded %s", backup_file)
 
     except:
@@ -147,7 +151,7 @@ def create_full_backup(app, backup_type):
 
     # filestamp = time.strftime('%Y-%m-%d_%H-%M')
     filestamp = '2016-03-28_09-17'
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['appname'], filestamp, backup_type,
                                          'gz')
 
     # here create backup
@@ -166,7 +170,7 @@ def create_incremental_backup(app, backup_type):
     print("starting incremental backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['prefix'], filestamp, backup_type,
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['appname'], filestamp, backup_type,
                                          'gz')
 
     # here create backup

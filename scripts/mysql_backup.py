@@ -2,7 +2,7 @@
 # autobackup-dcm: Simple python script to autobackup, rotate backup and upload to google drive.
 # this script create one daily incremental backups, and one full backup each week, month and year
 #
-# backups should be created and named as: appname_DATE_HOUR_BACKTYPE.EXTENSION
+# backups should be created and named as: app_name_DATE_HOUR_BACKTYPE.EXTENSION
 #
 # Author: dacopanCM <peter@peterodding.com>
 # Last Change: March 27, 2016
@@ -151,7 +151,7 @@ def create_full_backup(app, backup_type):
 
     # filestamp = time.strftime('%Y-%m-%d_%H-%M')
     filestamp = '2016-03-28_09-17'
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['appname'], filestamp, backup_type,
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['app_name'], filestamp, backup_type,
                                          'gz')
 
     # here create backup
@@ -170,7 +170,7 @@ def create_incremental_backup(app, backup_type):
     print("starting incremental backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
-    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['appname'], filestamp, backup_type,
+    backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['app_name'], filestamp, backup_type,
                                          'gz')
 
     # here create backup

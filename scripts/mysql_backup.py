@@ -9,12 +9,11 @@
 # URL: https://github.com/dacopan/autobackup-dcm
 
 # Standard library modules.
-import os
-import time
 import datetime
 import json
-import logging
+import logging.config
 import sys
+import time
 
 # External dependencies.
 
@@ -26,8 +25,12 @@ from gdrive_dcm import GDriveCM
 __version__ = '1.0'
 
 # Initialize a logger for this module.
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-log = logging.getLogger(__name__)
+
+with open('../config/logging.json', 'rt') as f:
+    config = json.load(f)
+    logging.config.dictConfig(config)
+
+log = logging.getLogger('dacopancm.mysql')
 
 CONFIG_FILE = '../config/mysql_config.json'
 
@@ -40,14 +43,14 @@ def read_config():
 
 
 def save_last_backup_datetime(app, cfg):
-    print("starting save_last_backup_datetime to '{}'".format(app['cfg']['app_name']))
+    log.info("starting save_last_backup_datetime to '{}'".format(app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
     global CONFIG_FILE
     with open(CONFIG_FILE, 'w') as f:
         json.dump(cfg, f, indent=2, sort_keys=False)
 
-    print("finish save_last_backup_datetime to '{}': {}".format(app['cfg']['app_name'], filestamp))
+    log.info("finish save_last_backup_datetime to '{}': {}".format(app['cfg']['app_name'], filestamp))
 
 
 def rotate_backups(app):
@@ -74,7 +77,7 @@ def rotate_backups(app):
                           remote_folder=app['cfg']['remote_backup_dir'])
     ).rotate_backups(app['cfg']['remote_backup_dir'])
 
-    print("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
+    log.info("finish rotate_backups to '{}'".format(app['cfg']['app_name']))
 
 
 def upload_backup(app, backup_file):
@@ -91,7 +94,7 @@ def upload_backup(app, backup_file):
 
 
 def do_backup():
-    print('starting all backups')
+    log.info('starting all backups')
     cfg = read_config()
 
     # get current time to determinate type of backup
@@ -139,15 +142,15 @@ def do_backup():
             # save_last_backup_datetime(app, cfg)
 
         else:
-            print("all backups to '{}' up to date".format(app['cfg']['app_name']))
+            log.info("all backups to '{}' up to date".format(app['cfg']['app_name']))
 
-        print('end backups to \'{}\''.format(app['cfg']['app_name']))
+        log.info('end backups to \'{}\''.format(app['cfg']['app_name']))
 
-    print('end all backups')
+    log.info('end all backups')
 
 
 def create_full_backup(app, backup_type):
-    print("starting full backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
+    log.info("starting full backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
     # filestamp = time.strftime('%Y-%m-%d_%H-%M')
     filestamp = '2016-03-28_09-17'
@@ -162,12 +165,12 @@ def create_full_backup(app, backup_type):
     f.close()
     # """
 
-    print("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
+    log.info("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
     upload_backup(app, backup_file)
 
 
 def create_incremental_backup(app, backup_type):
-    print("starting incremental backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
+    log.info("starting incremental backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
     backup_file = '{}{}_{}_{}.{}'.format(app['cfg']['local_backup_dir'], app['cfg']['app_name'], filestamp, backup_type,
@@ -180,7 +183,7 @@ def create_incremental_backup(app, backup_type):
         f.close()
         """
 
-    print("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
+    log.info("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
 
     upload_backup(app, backup_file)
 

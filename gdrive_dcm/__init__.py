@@ -30,8 +30,7 @@ except ImportError:
 __version__ = '1.0'
 
 # Initialize a logger for this module.
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-log = logging.getLogger(__name__)
+log = logging.getLogger('dacopancm.' + __name__)
 
 SCOPES = 'https://www.googleapis.com/auth/drive'
 CLIENT_SECRET_FILE = '../config/google-client_secret.json'
@@ -161,7 +160,7 @@ class GDriveCM(object):
             res = service.files().create(body=metadata, media_body=media, fields='id').execute()
 
             if res:
-                print('Uploaded "%s" (%s)' % (filename, res['id']))
+                log.info('Uploaded "%s" (%s)' % (filename, res['id']))
 
                 # Uncomment the following line to print the File ID
                 # print 'File ID: %s' % file['id']

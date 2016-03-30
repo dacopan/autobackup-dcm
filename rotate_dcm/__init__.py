@@ -31,7 +31,7 @@ from natsort import natsort
 __version__ = '2.3'
 
 # Initialize a logger for this module.
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('dacopancm.' + __name__)
 
 ORDERED_FREQUENCIES = (('hourly', relativedelta(hours=1)),
                        ('daily', relativedelta(days=1)),

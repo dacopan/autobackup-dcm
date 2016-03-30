@@ -10,23 +10,26 @@ import os
 import time
 import datetime
 import json
-import logging
+import logging.config
 import sys
 
 # Modules included in our package.
 from gdrive_dcm import GDriveCM
 
 # Initialize a logger for this module.
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-log = logging.getLogger(__name__)
+with open('../config/logging.json', 'rt') as f:
+    config = json.load(f)
+    logging.config.dictConfig(config)
+
+log = logging.getLogger('dacopancm.gdrive_utils')
 
 # file to store credentials in ~/.credentials
-GOOGLE_CRREDENTIALS_NAME = "setup-autobackup-dcm.json"
+GOOGLE_CREDENTIALS_NAME = "setup-autobackup-dcm.json"
 
 
 def main():
     print('Google drive folders in root')
-    gdrive = GDriveCM(google_credentials_name=GOOGLE_CRREDENTIALS_NAME,
+    gdrive = GDriveCM(google_credentials_name=GOOGLE_CREDENTIALS_NAME,
                       google_authorized=False)
 
     flag = 1

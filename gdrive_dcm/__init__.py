@@ -135,7 +135,7 @@ class GDriveCM(object):
         """
         service = self.get_service()
         filename = os.path.basename(file)
-        self.insert_file(service, filename, file)
+        return self.insert_file(service, filename, file)
 
     def insert_file(self, service, filename, file, mime_type=None, description=None):
         """Insert new file.
@@ -161,6 +161,7 @@ class GDriveCM(object):
 
             if res:
                 log.info('Uploaded "%s" (%s)' % (filename, res['id']))
+                return True
 
                 # Uncomment the following line to print the File ID
                 # print 'File ID: %s' % file['id']
@@ -168,6 +169,7 @@ class GDriveCM(object):
         except:
             e = sys.exc_info()[0]
             log.error('An error occurred: %s', e)
+            return False
 
     def get_files(self, folder_id):
         """Get list of all files contained in the folder_id

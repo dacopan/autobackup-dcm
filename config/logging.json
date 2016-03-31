@@ -38,8 +38,8 @@
       "level": "INFO",
       "handlers": [
         "console",
-        "info_file_handler",
-        "error_file_handler"
+        "error_file_handler",
+        "info_file_handler"
       ],
       "propagate": false,
       "qualname": "dacopancm"
@@ -48,7 +48,9 @@
   "root": {
     "level": "INFO",
     "handlers": [
-      "console"
+      "console",
+      "error_file_handler",
+      "info_file_handler"
     ]
   }
 }

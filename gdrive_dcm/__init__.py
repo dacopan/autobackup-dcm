@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # upload-backupcm: Simple python script to get, delete and upload files to google drive.
 #
-# Author: dacopanCM <peter@peterodding.com>
-# Last Change: March 27, 2016
+# Author: dacopanCM <dacopan.bsc@gmail.com>
 # URL: https://github.com/dacopan/autobackup-dcm
 
 from __future__ import print_function

@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-# Simple python script to get folder id required to configure automate backup-dcm
+# autobackup-dcm: Simple python script to get folder id required to configure automate backup-dcm
+# This script help you to retrieve google folder ID necessary to configure autobackup-dcm
+# You can retrieve this folder Id trough Google Drive Url
 #
-# Author: dacopanCM <peter@peterodding.com>
-# Last Change: March 27, 2016
+# Author: dacopanCM <dacopan.bsc@gmail.com>
 # URL: https://github.com/dacopan/autobackup-dcm
 
 # Standard library modules.
-import os
-import time
-import datetime
 import json
 import logging.config
-import sys
 
 # Modules included in our package.
 from gdrive_dcm import GDriveCM

@@ -1,14 +1,21 @@
 # rotate-backups: Simple command line interface for backup rotation.
 #
 # Author: Peter Odding <peter@peterodding.com>
-# Last Change: March 21, 2016
+# Last Change: March 21, 2016 (original)
 # URL: https://github.com/xolox/python-rotate-backups
+# Modified by dacopanCM <dacopan.bsc@gmail.com>
+# modifications:
+#    - Python api class :class:`RotateBackupsCM`
+#    - :class:`RotateBackupsCM` construct now has new param `gdrive` to manage remote actions on Google Drive
+#    - rotate_backups modified to call `gdrive` to delete files on Google Drive
+#    - custom_format_path instead of format_path to no format Google Drive files
+#    - collect_backups to get files from Google Drive
 
 """
 Simple to use Python API for rotation of backups.
 The :mod:`rotate_backups` module contains the Python API of the
 `rotate-backups` package. The core logic of the package is contained in the
-:class:`RotateBackups` class.
+:class:`RotateBackupsCM` class.
 """
 
 # Standard library modules.
@@ -92,7 +99,7 @@ class RotateBackupsCM(object):
     def __init__(self, rotation_scheme, include_list=None, exclude_list=None,
                  dry_run=False, io_scheduling_class=None, rotate_type='local', gdrivecm=None):
         """
-        Construct a :class:`RotateBackups` object.
+        Construct a :class:`RotateBackupsCM` object.
         :param rotation_scheme: A dictionary with one or more of the keys 'hourly',
                                 'daily', 'weekly', 'monthly', 'yearly'. Each key is
                                 expected to have one of the following values:

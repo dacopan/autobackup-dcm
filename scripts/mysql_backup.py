@@ -2,10 +2,9 @@
 # autobackup-dcm: Simple python script to autobackup, rotate backup and upload to google drive.
 # this script create one daily incremental backups, and one full backup each week, month and year
 #
-# backups should be created and named as: app_name_DATE_HOUR_BACKTYPE.EXTENSION
-#
-# Author: dacopanCM <peter@peterodding.com>
-# Last Change: March 27, 2016
+# backups should be created and named as: app_name_DATE_HOUR_BACKTYPE.EXTENSION for example:
+# jom_2015-12-25_09-58_daily.gz
+# Author: dacopanCM <dacopan.bsc@gmail.com>
 # URL: https://github.com/dacopan/autobackup-dcm
 
 # Standard library modules.
@@ -24,24 +23,25 @@ from executor import execute, ExternalCommandFailed
 from rotate_dcm import RotateBackupsCM
 from gdrive_dcm import GDriveCM
 
-# Semi-standard module versioning.
+# Semi-standard module version.
 __version__ = '1.0'
 
 # Initialize a logger for this module.
-# """
 with open('../config/logging.json', 'rt') as f:
     config = json.load(f)
     logging.config.dictConfig(config)
 
 log = logging.getLogger('dacopancm.mysql')
-"""
-logging.basicConfig(level='DEBUG')
-log = logging.getLogger()
-"""
+
+# constants
 CONFIG_FILE = '../config/mysql_config.json'
 
 
 def read_config():
+    """Read configuration of app to backup from json file defined by `~CONFIG_FILE`
+
+    :return: :class:`list` with all apps to backup loaded from json
+    """
     global CONFIG_FILE
     with open(CONFIG_FILE, 'r') as f:
         cfg = json.load(f)
@@ -49,6 +49,12 @@ def read_config():
 
 
 def save_last_backup_datetime(app, cfg):
+    """
+    Save in the app config file the timestamp of the last successful backup
+
+    :param app: :class:`dict` with configuration returned by :func:`read_config()` modified by
+    :param cfg: the modified version of cfg returned by :func:`~read_config()`.
+    """
     log.info("starting save_last_backup_datetime to '{}'".format(app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
@@ -60,6 +66,10 @@ def save_last_backup_datetime(app, cfg):
 
 
 def rotate_backups(app):
+    """ Rotate backups in local and remote directories of this app
+
+    :param app: :class:`dict` with configuration returned by :func:`read_config()`
+    """
     log.info("starting rotate_backups to '{}'".format(app['cfg']['app_name']))
 
     RotateBackupsCM(
@@ -87,6 +97,12 @@ def rotate_backups(app):
 
 
 def upload_backup(app, backup_file):
+    """ Upload backup_file to Google Drive
+
+    :param app: :class:`dict` with configuration returned by :func:`read_config()`
+    :param backup_file: the local path of backup_file to upload
+    :return: True if upload otherwise False
+    """
     log.debug("uploading %s", backup_file)
     try:
         res = GDriveCM(google_credentials_name=app['cfg']['google_credentials_name'],
@@ -107,6 +123,10 @@ def upload_backup(app, backup_file):
 
 
 def do_backup():
+    """
+    The magic occurs here
+
+    """
     log.info('starting all backups')
     cfg = read_config()
 
@@ -167,6 +187,12 @@ def do_backup():
 
 
 def create_full_backup(app, backup_type):
+    """Create a full backup of a database defined in attr:´app´
+
+    :param app: :class:`dict` with configuration returned by :func:`read_config()`
+    :param backup_type: the key backup type to include in backup filename: daily, weekly, monthly, yearly
+    :return: ``True`` if local and remote backup created correctly, ``False`` otherwise
+    """
     log.info("starting full backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
@@ -181,7 +207,8 @@ def create_full_backup(app, backup_type):
         os.makedirs(os.path.dirname(backup_file), exist_ok=True)
         timer = Timer()
 
-        mysql_cmd = '/opt/lamp/mysql/bin/mysqldump --opt --triggers --events --user={} --password={} --databases {}'.format(
+        mysql_cmd = '/opt/lamp/mysql/bin/mysqldump '
+        mysql_cmd += '--opt --triggers --events --user={} --password={} --databases {}'.format(
             app['custom']['db_user'], app['custom']['db_password'], app['custom']['db_name'])
 
         gzip_cmd = 'gzip -c > {}'.format(format_path(backup_file))
@@ -203,6 +230,13 @@ def create_full_backup(app, backup_type):
 
 
 def create_incremental_backup(app, backup_type):
+    """Create a incremental backup of a database defined in attr:´app´
+
+        :param app: :class:`dict` with configuration returned by :func:`read_config()`
+        :param backup_type: the key backup type to include in backup filename: daily, weekly, monthly, yearly
+        :return: ``True`` if local and remote backup created correctly, ``False`` otherwise
+    """
+
     log.info("starting incremental backup_{} to '{}'".format(backup_type, app['cfg']['app_name']))
 
     filestamp = time.strftime('%Y-%m-%d_%H-%M')
@@ -210,9 +244,9 @@ def create_incremental_backup(app, backup_type):
                                          'gz')
     # here create incremental backup
 
-    log.info("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
-
     upload_backup(app, backup_file)
+
+    log.info("finish incremental backup_{} to '{}:{}'".format(backup_type, app['cfg']['app_name'], backup_file))
 
 
 if __name__ == "__main__":

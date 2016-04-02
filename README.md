@@ -26,10 +26,10 @@ See Development notes in the [development page](https://github.com/dacopan/autob
 AutoBackup DcM has :cop: [GNU GPL v3](https://github.com/dacopan/autobackup-dcm/blob/master/LICENSE) licence
 
 ## Chat Room
-:speech_balloon: https://gitter.im/dacopan/javafutbolee
+:speech_balloon: https://gitter.im/dacopan/autobackup-dcm
 
 ## Wiki
 AutoBackup DcM project's :books: [wiki](https://github.com/dacopan/autobackup-dcm/wiki)
 
 ## Credits
-See all the credits in the [credits page](https://github.com/dacopan/autobackup-dcm/wiki/Credits) of the project's [wiki](https://github.com/dacopan/javafutbolee/wiki)
+- [rotate-backups](https://github.com/xolox/python-rotate-backups)

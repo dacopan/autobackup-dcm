@@ -19,11 +19,10 @@ from humanfriendly import format_path, Timer
 from executor import execute, ExternalCommandFailed
 
 # Modules included in our package.
-
-# Semi-standard module version.
 from core.rotate_dcm import RotateBackupsCM
 from core.gdrive_dcm import GDriveCM
 
+# Semi-standard module version.
 __version__ = '1.0'
 
 log = logging.getLogger('dacopancm.mysql')

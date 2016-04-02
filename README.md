@@ -27,6 +27,7 @@ AutoBackup DcM has :cop: [GNU GPL v3](https://github.com/dacopan/autobackup-dcm/
 
 ## Chat Room
 :speech_balloon: https://gitter.im/dacopan/autobackup-dcm
+> Please ask in gitter, :hatching_chick: don't open a issue to only make questions. Use issues to report Bugs and enhancements
 
 ## Wiki
 AutoBackup DcM project's :books: [wiki](https://github.com/dacopan/autobackup-dcm/wiki)

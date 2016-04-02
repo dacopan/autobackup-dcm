@@ -11,13 +11,9 @@ import json
 import logging.config
 
 # Modules included in our package.
-from gdrive_dcm import GDriveCM
+from core.gdrive_dcm import GDriveCM
 
 # Initialize a logger for this module.
-with open('../config/logging.json', 'rt') as f:
-    config = json.load(f)
-    logging.config.dictConfig(config)
-
 log = logging.getLogger('dacopancm.gdrive_utils')
 
 # file to store credentials in ~/.credentials

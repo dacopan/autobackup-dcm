@@ -15,21 +15,16 @@ import os
 import time
 
 # External dependencies.
-
 from humanfriendly import format_path, Timer
 from executor import execute, ExternalCommandFailed
 
 # Modules included in our package.
-from rotate_dcm import RotateBackupsCM
-from gdrive_dcm import GDriveCM
 
 # Semi-standard module version.
-__version__ = '1.0'
+from core.rotate_dcm import RotateBackupsCM
+from core.gdrive_dcm import GDriveCM
 
-# Initialize a logger for this module.
-with open('../config/logging.json', 'rt') as f:
-    config = json.load(f)
-    logging.config.dictConfig(config)
+__version__ = '1.0'
 
 log = logging.getLogger('dacopancm.mysql')
 

@@ -1,41 +1,41 @@
 [
   {
-    "custom": {
-      "db_user": "jom",
-      "db_host": "localhost",
-      "db_password": "jom",
-      "db_name": "jom"
-    },
     "bk": {
-      "last_day": 28,
-      "last_month": 3,
       "last_week": 13,
-      "last_year": 0
+      "last_year": 2016,
+      "last_day": 2,
+      "last_month": 4
+    },
+    "rotate": {
+      "local": {
+        "monthly": 12,
+        "yearly": 2,
+        "weekly": 4,
+        "daily": 7
+      },
+      "remote": {
+        "monthly": 12,
+        "yearly": 3,
+        "weekly": 4,
+        "daily": 7
+      },
+      "include_list": [],
+      "dry_run": false,
+      "ionice": "idle",
+      "exclude_list": []
     },
     "cfg": {
       "local_backup_dir": "../backup_test_files/jom_backups/",
-      "remote_backup_dir": "google_folder_id",
-      "app_name": "jom",
+      "remote_backup_dir": "0B32vVHku7fXqNUpLLXF3YzJVZTg",
       "google_credentials_name": "jom_google_credentials.json",
+      "app_name": "jom",
       "google_authorized": false
     },
-    "rotate": {
-      "dry_run": true,
-      "include_list": [],
-      "ionice": "idle",
-      "exclude_list": [],
-      "local": {
-        "daily": 7,
-        "weekly": 4,
-        "monthly": 12,
-        "yearly": 2
-      },
-      "remote": {
-        "daily": 7,
-        "weekly": 4,
-        "monthly": 12,
-        "yearly": 3
-      }
+    "custom": {
+      "db_user": "jom",
+      "db_name": "jom",
+      "db_host": "localhost",
+      "db_password": "jom"
     }
   }
 ]

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/autobackup-dcm.iml" filepath="$PROJECT_DIR$/.idea/autobackup-dcm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../color-graph/.idea/color-graph.iml" filepath="$PROJECT_DIR$/../color-graph/.idea/color-graph.iml" />
     </modules>
   </component>
 </project>
